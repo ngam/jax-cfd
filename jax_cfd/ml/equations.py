@@ -30,7 +30,7 @@ PressureModule = pressures.PressureModule
 
 # TODO(dkochkov) move diffusion to modular_navier_stokes after b/160947162.
 @gin.configurable(denylist=("grid", "dt", "physics_specs"))
-def semi_implicit_navier_stokes(
+def explicit_diffusion_navier_stokes(
     grid: grids.Grid,
     dt: float,
     physics_specs: physics_specifications.NavierStokesPhysicsSpecs,
@@ -39,9 +39,12 @@ def semi_implicit_navier_stokes(
 ):
   """Semi-implicit navier stokes solver compatible with explicit diffusion."""
   diffusion = diffusion_module(grid, dt, physics_specs)
-  step_fn = equations.semi_implicit_navier_stokes(
+  step_fn = equations.explicit_diffusion_navier_stokes(
       diffuse=diffusion, grid=grid, dt=dt, **kwargs)
   return hk.to_module(step_fn)()
+
+
+semi_implicit_navier_stokes = explicit_diffusion_navier_stokes
 
 
 @gin.configurable(denylist=("grid", "dt", "physics_specs"))
